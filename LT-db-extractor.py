@@ -63,7 +63,7 @@ def main():
     # SSH connection
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(db['hostname'], username='root', password=db['password'])
+    ssh.connect(db['hostname'], username=db['username'], password=db['password'])
     sftp = ssh.open_sftp()
 
     # Generate time stamp (as a sequence) for csv file
@@ -74,7 +74,7 @@ def main():
     csv = open(os.path.join(args.outdir, args.exper+"_SnapshotInfo_"+time+".csv"), "w")
 
     # Connect to the LemnaTec database
-    conn = psycopg2.connect(host=db['hostname'], user=db['username'], password=db['password'], database=db['database'])
+    conn = psycopg2.connect(host=db['hostname'], user=db['dbusername'], password=db['dbpassword'], database=db['database'])
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     # Get all snapshots
@@ -82,7 +82,8 @@ def main():
 
     if args.date1 is not None and args.date2 is not None:
         sql_command = str("SELECT * FROM snapshot WHERE measurement_label = " + str(exp) + " AND time_stamp >= " + str(date_start) + "AND time_stamp <= " + str(date_end))
-    else: sql_command = str("SELECT * FROM snapshot WHERE measurement_label = " + str(exp))
+    else: 
+        sql_command = str("SELECT * FROM snapshot WHERE measurement_label = " + str(exp))
 
     cur.execute(sql_command)
     for row in cur:

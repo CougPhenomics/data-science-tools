@@ -3,6 +3,8 @@
   "password" : "password",
   "hostname" : "hostname",
   "database" : "dbname",
+  "dbusername" : "dbuser",
+  "dbpassword" : "dbpwd",
   "path" : "/path/on/lemnatec/server",
   "colour" : 48,
   "vis_height" : 2056,
