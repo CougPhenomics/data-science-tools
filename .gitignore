@@ -91,6 +91,11 @@ ENV/
 # PyCharm project director
 .idea/
 
+# vscode
+.vscode
+
+#config files
 *.config
 
+#mac files
 .DS_Store
