@@ -1,0 +1,14 @@
+# run: conda env create --file environment.yml
+name: LTextract
+dependencies:
+  - python
+  - psycopg2
+  - paramiko
+  - numpy>=1.11, <1.17
+  - tqdm
+  - pip
+  - pip:
+    - opencv-python<4, >=3.4
+channels:
+  - defaults
+  - conda-forge

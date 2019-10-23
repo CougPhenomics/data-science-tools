@@ -92,7 +92,7 @@ ENV/
 .idea/
 
 # vscode
-.vscode
+.vscode/
 
 #config files
 *.config
