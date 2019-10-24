@@ -60,7 +60,7 @@ def main():
     elif args.date1 is not None and args.date2 is None: 
             try: print(x)
             except NameError:
-                print("Please enter a valid start date (-a) and end date (-z) in the format YYYY-mm-DD.")
+                print("Please enter both a valid start date (-a) and end date (-z) in the format YYYY-mm-DD.")
                 quit()
     else: 
         print("Preparing to download snapshots...")
