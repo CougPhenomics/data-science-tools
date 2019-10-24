@@ -22,15 +22,20 @@ def options():
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
     parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd).", required=False)
-
+    parser.add_argument("-f", "--force", help="overwrite out directory", required=False, default=False)
     args = parser.parse_args()
 
     # Try to make output directory, throw an error and quit if it already exists.
 
-    try: os.mkdir(args.outdir)
-    except Exception:
-        print("The directory {0} already exists!".format(args.outdir))
-        quit()
+    if not args.force and os.path.exists(args.outdir):
+        try:
+            os.mkdir(args.outdir)
+        except Exception:
+            print("The directory {0} already exists!".format(args.outdir))
+            quit()
+    else:
+        os.makedirs(args.outdir, exist_ok=True)
+
     return args
 
 def main():
@@ -39,7 +44,7 @@ def main():
 
     # Read the database connetion configuration file
     config = open(args.config, 'r')
-
+    
     # Load the JSON configuration data
     db = json.load(config)
     
