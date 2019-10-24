@@ -48,19 +48,6 @@ def main():
     #Load the experiment number
     exp = args.exper
 
-    #Load date range (if applicable)
-
-    if args.date1 is not None and args.date2 is not None:
-        print("Preparing to download snapshots between " + args.date1 + " and " + args.date2 + "...")
-    elif args.date1 is not None and args.date2 is None: 
-            try: 
-                print(x)
-            except NameError:
-                print("Please enter both a valid start date (-a) and end date (-z) in the format YYYY-mm-DD.")
-                quit()
-    else: 
-        print("Preparing to download snapshots...")
-
     # SSH connection
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -81,13 +68,23 @@ def main():
     # Get all snapshots
     snapshots = {}
 
+    # Load date range (if applicable)
+    # 2 dates given
     if args.date1 is not None and args.date2 is not None:
+        print("Preparing to download snapshots between " + args.date1 + " and " + args.date2 + "...")
         sql_command = "SELECT * FROM snapshot WHERE measurement_label = %(exp)s AND time_stamp >= %(date_start)s AND time_stamp <= %(date_end)s"
+    # only 1 date given
+    elif not (args.date1 is None and args.date2 is None): 
+            print("Please enter both a valid start date (-a) and end date (-z) in the format YYYY-mm-DD.")
+            quit()
+    # no date given
     else: 
         sql_command = "SELECT * FROM snapshot WHERE measurement_label = %(exp)s"
+        print("Preparing to download all snapshots from measurement label {0}...".format(exp))
 
     data = {'exp':exp, 'date_start':args.date1, 'date_end':args.date2}
     cur.execute(sql_command, data)
+        
     for row in cur:
         snapshots[row['id']] = row
 
@@ -99,7 +96,7 @@ def main():
     for row in cur:
         if row['snapshot_id'] in snapshots:
 
-            # Fix LemnaTec database time format for renaming output PNG files (ie: remove microseconds and UTC correction)
+            # Read LemnaTec database time format for renaming output PNG files
             lt_time = str(row['time_stamp'])
             lt_time_convert = dt_parser(lt_time)
             lt_time_neat = datetime.datetime.strftime(lt_time_convert, '%Y%m%dT%H%M%S')
