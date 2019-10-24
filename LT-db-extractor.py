@@ -128,7 +128,7 @@ def main():
 
         # Group all the output metadata
         snapshot = snapshots[snapshot_id]
-        values = [str(exp), snapshot['id'], snapshot['id_tag'], snapshot['car_tag'],
+        values = [exp, snapshot['id'], snapshot['id_tag'], snapshot['car_tag'],
                   snapshot['time_stamp'].strftime('%Y-%m-%d %H:%M:%S'), snapshot['weight_before'],
                   snapshot['weight_after'], snapshot['water_amount'], snapshot['propagated'],
                   snapshot['measurement_label'], '']
@@ -179,8 +179,10 @@ def main():
                                 raw = np.frombuffer(img_str, dtype=np.uint8, count=db['vis_height']*db['vis_width'])
                                 raw_img = raw.reshape((db['vis_height'], db['vis_width']))
                                 img = cv2.cvtColor(raw_img, db['colour'])
-                                if raw_images[image]['rotate_flip_type'] != 0:
-                                    img = rotate_image(img)
+                                rotate_flip_type = raw_images[image]['rotate_flip_type']
+                                if rotate_flip_type != 0:
+                                    # original flip type was 180 => flip_type = 2
+                                    img = rotate_image(img, rotate_flip_type)
                                 cv2.imwrite(os.path.join(snapshot_dir, image + ".png"), img)
                                 #os.remove(local_file)
                             else:
@@ -260,16 +262,32 @@ def main():
                 print("Error while deleting file")
 
 
-def rotate_image(img):
-    """Rotate an image 180 degrees
+def rotate_image(img, flip_type):
+    """Rotate image based on flip code
 
     :param img: ndarray
+    :param flip_type: int
     :return img: ndarray
     """
-    # Flip vertically
-    img = cv2.flip(img, 1)
-    # Flip horizontally
-    img = cv2.flip(img, 0)
+    
+    if flip_type == 1:
+        img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+    elif flip_type == 2:
+        img = cv2.rotate(img, cv2.ROTATE_180)
+    elif flip_type == 3:
+        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    elif flip_type == 4:
+        # flip around y axis
+        img = cv2.flip(img, 1)
+    elif flip_type == 5:
+        img = cv2.flip(img, 1)
+        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    elif flip_type == 6:
+        # flip around x axis
+        img = cv2.flip(img, 0)
+    elif flip_type == 7:
+        img = cv2.flip(img, 0)
+        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     return img
 
