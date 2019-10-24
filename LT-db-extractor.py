@@ -23,17 +23,13 @@ def options():
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
     parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd) (exclusive).", required=False)
-    parser.add_argument("-f", "--force", help="overwrite out directory", required=False)
+    parser.add_argument("-f", "--force", help="overwrite out directory", required=False, action='store_true')
     args = parser.parse_args()
 
     # Try to make output directory, throw an error and quit if it already exists.
-
-    if not args.force and os.path.exists(args.outdir):
-        try:
-            os.mkdir(args.outdir)
-        except Exception:
-            print("The directory {0} already exists!".format(args.outdir))
-            quit()
+    if os.path.exists(args.outdir) and not args.force:
+        print("The directory {0} already exists!".format(args.outdir))
+        quit()
     else:
         os.makedirs(args.outdir, exist_ok=True)
 
@@ -146,7 +142,12 @@ def main():
             total_images += len(images[snapshot_id])
             # Create the local directory
             snapshot_dir = os.path.join(args.outdir, "snapshot" + str(snapshot_id))
-            os.mkdir(snapshot_dir)
+            # skip snapshot if dir already exists AND args.force is True
+            # if args.force is false it shouldn't have made it this far. see options()
+            if os.path.exists(snapshot_dir):
+                continue
+            else:
+                os.makedirs(snapshot_dir) 
 
             for image in images[snapshot_id]:
                 # Copy the raw image to the local directory
