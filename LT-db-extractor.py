@@ -13,6 +13,7 @@ import cv2
 import datetime
 import fnmatch
 from tqdm import tqdm
+from dateutil.parser import parse as dt_parser
 
 def options():
     parser = argparse.ArgumentParser(description='Retrieve data from a LemnaTec database.',
@@ -21,7 +22,7 @@ def options():
     parser.add_argument("-e", "--exper", help="Experiment number (measurement label)", required=True)
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
-    parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd).", required=False)
+    parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd) (exclusive).", required=False)
     parser.add_argument("-f", "--force", help="overwrite out directory", required=False, default=False)
     args = parser.parse_args()
 
@@ -73,7 +74,7 @@ def main():
 
     # Generate time stamp (as a sequence) for csv file
     now = datetime.datetime.now()
-    time = now.strftime("%Y%m%d%H%M%S")
+    time = now.strftime("%Y%m%dT%H%M%S")
 
     # Create the SnapshotInfo csv file (with experiment and time information in file name)
     csv = open(os.path.join(args.outdir, args.exper+"_SnapshotInfo_"+time+".csv"), "w")
@@ -104,16 +105,8 @@ def main():
 
             # Fix LemnaTec database time format for renaming output PNG files (ie: remove microseconds and UTC correction)
             lt_time = str(row['time_stamp'])
-            # Check if time stamp contains milliseconds (not all do)
-            if "." in lt_time:
-                sep = '.'
-                lt_time_short = lt_time.split(sep, 1)[0]
-            else:
-                sep = '+'
-                lt_time_short = lt_time.split(sep, 1)[0]
-            lt_time_format = "%Y-%m-%d %H:%M:%S"
-            lt_time_convert = datetime.datetime.strptime(lt_time_short, lt_time_format)
-            lt_time_neat = datetime.datetime.strftime(lt_time_convert, '%Y-%m-%d %H-%M-%S')
+            lt_time_convert = dt_parser(lt_time)
+            lt_time_neat = datetime.datetime.strftime(lt_time_convert, '%Y%m%dT%H%M%S')
 
             image_name = row['id_tag'] + '_' + lt_time_neat + '_' + row['measurement_label'] + '_' + row['camera_label'] + '_' + str(row['tiled_image_id']) + '_' + str(row['car_tag']) + '_' + str(row['frame'])
             if row['snapshot_id'] in images:
