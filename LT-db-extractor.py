@@ -46,16 +46,15 @@ def main():
     db = json.load(config)
     
     #Load the experiment number
-    exp = "'"+ args.exper + "'"
+    exp = args.exper
 
     #Load date range (if applicable)
 
     if args.date1 is not None and args.date2 is not None:
-        date_start = "'"+ args.date1 + "'"
-        date_end = "'"+ args.date2 + "'"
         print("Preparing to download snapshots between " + args.date1 + " and " + args.date2 + "...")
     elif args.date1 is not None and args.date2 is None: 
-            try: print(x)
+            try: 
+                print(x)
             except NameError:
                 print("Please enter both a valid start date (-a) and end date (-z) in the format YYYY-mm-DD.")
                 quit()
@@ -83,11 +82,12 @@ def main():
     snapshots = {}
 
     if args.date1 is not None and args.date2 is not None:
-        sql_command = str("SELECT * FROM snapshot WHERE measurement_label = " + str(exp) + " AND time_stamp >= " + str(date_start) + "AND time_stamp <= " + str(date_end))
+        sql_command = "SELECT * FROM snapshot WHERE measurement_label = %(exp)s AND time_stamp >= %(date_start)s AND time_stamp <= %(date_end)s"
     else: 
-        sql_command = str("SELECT * FROM snapshot WHERE measurement_label = " + str(exp))
+        sql_command = "SELECT * FROM snapshot WHERE measurement_label = %(exp)s"
 
-    cur.execute(sql_command)
+    data = {'exp':exp, 'date_start':args.date1, 'date_end':args.date2}
+    cur.execute(sql_command, data)
     for row in cur:
         snapshots[row['id']] = row
 
