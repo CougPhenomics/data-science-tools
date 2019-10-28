@@ -211,8 +211,10 @@ def main():
                                                                                                            image))
                             if raw_rescale is not None:
                                 raw_img = raw_rescale.reshape((db['nir_height'], db['nir_width']))
-                                if raw_images[image]['rotate_flip_type'] != 0:
-                                    raw_img = rotate_image(raw_img)
+                                rotate_flip_type = raw_images[image]['rotate_flip_type']
+                                if rotate_flip_type != 0:
+                                    # original flip type was 180 => flip_type = 2
+                                    raw_img = rotate_image(raw_img, rotate_flip_type)
                                 cv2.imwrite(os.path.join(snapshot_dir, image + ".png"), raw_img)
                                 os.remove(local_file)
                         else:
@@ -221,8 +223,10 @@ def main():
                                 print("Warning: max value for image {0} is greater than 16384.".format(image))
                             raw_rescale = np.multiply(raw, 4)
                             raw_img = raw_rescale.reshape((db['psII_height'], db['psII_width']))
-                            if raw_images[image]['rotate_flip_type'] != 0:
-                                raw_img = rotate_image(raw_img)
+                            rotate_flip_type = raw_images[image]['rotate_flip_type']
+                            if rotate_flip_type != 0:
+                                # original flip type was 180 => flip_type = 2
+                                raw_img = rotate_image(raw_img, rotate_flip_type)
                             cv2.imwrite(os.path.join(snapshot_dir, image + ".png"), raw_img)
                             os.remove(local_file)
                         zff.close()
