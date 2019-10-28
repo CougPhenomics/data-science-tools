@@ -4,6 +4,7 @@ dependencies:
   - python
   - psycopg2
   - paramiko
+  - python-dateutil
   - numpy>=1.11, <1.17
   - tqdm
   - pip

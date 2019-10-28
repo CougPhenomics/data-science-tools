@@ -62,7 +62,7 @@ def main():
     csv = open(os.path.join(args.outdir, args.exper+"_SnapshotInfo_"+time+".csv"), "w")
 
     # Connect to the LemnaTec database
-    conn = psycopg2.connect(host=db['hostname'], user=db['dbusername'], password=db['dbpassword'], database=db['database'])
+    conn = psycopg2.connect(host=db['dbhostname'], user=db['dbusername'], password=db['dbpassword'], database=db['dbname'])
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     # Get all snapshots

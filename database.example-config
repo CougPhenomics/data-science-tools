@@ -1,8 +1,9 @@
 {
   "username" : "user",
   "password" : "password",
-  "hostname" : "hostname",
-  "database" : "dbname",
+  "hostname" : "hostname", #if runnint local, then "localhost"
+  "dbhostname" "dbhostname", #if you are running it local, this will be ""
+  "dbname" : "dbname",
   "dbusername" : "dbuser",
   "dbpassword" : "dbpwd",
   "path" : "/path/on/lemnatec/server",
