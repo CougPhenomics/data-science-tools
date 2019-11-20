@@ -148,7 +148,7 @@ def main():
 
             for image in images[snapshot_id]:
                 # Copy the raw image to the local directory
-                remote_dir = os.path.join(db['path'], db['database'],
+                remote_dir = os.path.join(db['path'], db['dbname'],
                                           snapshot['time_stamp'].strftime("%Y-%m-%d"),
                                           "blob" + str(raw_images[image]['raw_image_oid']))
                 local_file = os.path.join(snapshot_dir, "blob" + str(raw_images[image]['raw_image_oid']))
