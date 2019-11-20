@@ -99,3 +99,6 @@ ENV/
 
 #mac files
 .DS_Store
+
+#
+testing/
