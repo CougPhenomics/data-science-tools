@@ -11,7 +11,6 @@ import paramiko
 import numpy as np
 import cv2
 import datetime
-import fnmatch
 from tqdm import tqdm
 
 def options():
@@ -19,11 +18,11 @@ def options():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-c", "--config", help="JSON config file.", required=True)
     parser.add_argument("-e", "--exper", help="Experiment number/name (measurement label)", required=True)
-    parser.add_argument("-l", "--camera", help="Camera label such as VIS or PSII or NIR", required=False)
+    parser.add_argument("-l", "--camera", help="Camera label. VIS or PSII or NIR", required=False)
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
     parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd) (exclusive).", required=False)
-    parser.add_argument("-d", "--append", help="overwrite out directory", required=False, action='store_true')
+    parser.add_argument("-d", "--append", help="add new files to existing directory", required=False, action='store_true')
     args = parser.parse_args()
 
     # Try to make output directory, throw an error and quit if it already exists and append was not given.
