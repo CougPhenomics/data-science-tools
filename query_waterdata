@@ -1,0 +1,4 @@
+SELECT time_stamp as snapshot_timestamp, snapshot.weight_before, snapshot.weight_after, snapshot.water_amount_g,
+snapshot.comment as Job, snapshot.id_tag, snapshot.id as snapshot_id, snapshot.measurement_label
+FROM snapshot
+WHERE snapshot.measurement_label = 'GoldStandard2_water'
