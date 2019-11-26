@@ -130,7 +130,7 @@ def main():
         values = [exp, snapshot['id'], snapshot['id_tag'], snapshot['car_tag'],
                   snapshot['time_stamp'].strftime(
                       '%Y-%m-%d %H:%M:%S'), snapshot['weight_before'],
-                  snapshot['weight_after'], snapshot['water_amount'], snapshot['propagated'],
+                  snapshot['weight_after'], snapshot['water_amount_g'], snapshot['propagated'],
                   snapshot['measurement_label'], '', image_name]
 
         csv.write(','.join(map(str, values)) + '\n')
@@ -153,7 +153,7 @@ def main():
             if sys.platform.startswith('win'):
                 local_file = local_file.replace('\\', '/')
                 remote_dir = remote_dir.replace('\\', '/')
-                                
+
             try:
                 sftp.get(remote_dir, local_file)
 
@@ -171,23 +171,26 @@ def main():
                     img_str = zff.read()
 
                     if 'VIS' in snapshot['camera_label'].upper() or 'TV' in snapshot['camera_label'].upper():
-
-                        if len(img_str) == db['vis_height'] * db['vis_width']:
-                            raw = np.frombuffer(
-                                img_str, dtype=np.uint8, count=db['vis_height']*db['vis_width'])
-                            raw_img = raw.reshape(
-                                (db['vis_height'], db['vis_width']))
-                            img = cv2.cvtColor(raw_img, db['colour'])
-                            rotate_flip_type = snapshot['rotate_flip_type']
-                            if rotate_flip_type != 0:
+                        # dataformat = 9 for 8 bit bayer mosaic. others?
+                        if snapshot['dataformat'] == 9:    
+                            if len(img_str) == db['vis_height'] * db['vis_width']:
+                                raw = np.frombuffer(
+                                    img_str, dtype=np.uint8, count=db['vis_height']*db['vis_width'])
+                                raw_img = raw.reshape(
+                                    (db['vis_height'], db['vis_width']))
+                                img = cv2.cvtColor(raw_img, db['colour'])
+                                rotate_flip_type = snapshot['rotate_flip_type']
                                 # original flip type was 180 => flip_type = 2
                                 img = rotate_image(img, rotate_flip_type)
-                            cv2.imwrite(os.path.join(
-                                snapshot_dir, image_name + ".png"), img)
-                            #os.remove(local_file)
-                        else:
-                            print("Warning: File {0} containing image {1} seems corrupted.".format(local_file,
+                                cv2.imwrite(os.path.join(
+                                    snapshot_dir, image_name + ".png"), img)
+                            else:
+                                print("Warning: File {0} containing image {1} seems corrupted.".format(local_file,
                                                                                                 image_name))
+
+                        else:
+                            print("Warning: File {0} containing image {1} had a different data format than expected.".format(local_file,
+                                                                                                                          image_name   ))
                     elif 'NIR' in snapshot['camera_label'].upper():
                         raw_rescale = None
                         if snapshot['dataformat'] == 4:
@@ -214,30 +217,43 @@ def main():
                             raw_img = raw_rescale.reshape(
                                 (db['nir_height'], db['nir_width']))
                             rotate_flip_type = snapshot['rotate_flip_type']
-                            if rotate_flip_type != 0:
-                                # original flip type was 180 => flip_type = 2
-                                raw_img = rotate_image(
-                                    raw_img, rotate_flip_type)
+                            raw_img = rotate_image(raw_img, rotate_flip_type)
                             cv2.imwrite(os.path.join(
                                 snapshot_dir, image_name + ".png"), raw_img)
                             os.remove(local_file)
+
                     elif 'PSII' in snapshot['camera_label'].upper():
-                        raw = np.frombuffer(
-                            img_str, dtype=np.uint16, count=db['psII_height'] * db['psII_width'])
-                        if np.max(raw) > 16384:
-                            print(
-                                "Warning: max value for image {0} is greater than 16384.".format(image_name))
-                        raw_rescale = np.multiply(raw, 4)
-                        raw_img = raw_rescale.reshape(
-                            (db['psII_height'], db['psII_width']))
-                        rotate_flip_type = snapshot['rotate_flip_type']
-                        if rotate_flip_type != 0:
+
+                        raw_rescale = None
+                        # dataformat = 11 for the text file in frame 0 from Walz
+                        if snapshot['dataformat'] == 4:
+                            # camera data format (16-bit)
+                            if len(img_str) == (db['psII_height'] * db['psII_width']) * 2:
+                                raw = np.frombuffer(img_str, dtype=np.uint16,
+                                                    count=db['psII_height'] * db['psII_width'])
+                                if np.max(raw) > 4096:
+                                    print(
+                                        "Warning: max value for image {0} is greater than 4096.".format(image_name))
+                                raw_rescale = np.multiply(raw, 16)
+                            else:
+                                print("Warning: File {0} containing image {1} seems corrupted.".format(local_file,
+                                                                                                    image_name))
+                        elif snapshot['dataformat'] == 0:
+                            #  data format (8-bit)
+                            if len(img_str) == (db['psII_height'] * db['psII_width']):
+                                raw_rescale = np.frombuffer(img_str, dtype=np.uint8,
+                                                            count=db['psII_height'] * db['psII_width'])
+                            else:
+                                print("Warning: File {0} containing image {1} seems corrupted.".format(local_file,
+                                                                                                       image_name))
+                        if raw_rescale is not None:
+                            raw_img = raw_rescale.reshape((db['psII_height'], db['psII_width']))
+                            rotate_flip_type = snapshot['rotate_flip_type']
                             # original flip type was 180 => flip_type = 2
-                            raw_img = rotate_image(
-                                raw_img, rotate_flip_type)
-                        cv2.imwrite(os.path.join(
-                            snapshot_dir, image_name + ".png"), raw_img)
-                        os.remove(local_file)
+                            raw_img = rotate_image(raw_img, rotate_flip_type)
+                            cv2.imwrite(os.path.join(
+                                snapshot_dir, image_name + ".png"), raw_img)
+        
                     zff.close()
                     zf.close()
                     try:
@@ -268,8 +284,9 @@ def rotate_image(img, flip_type):
     :param flip_type: int
     :return img: ndarray
     """
-    
-    if flip_type == 1:
+    if flip_type == 0:
+        img = img
+    elif flip_type == 1:
         img = cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
     elif flip_type == 2:
         img = cv2.rotate(img, cv2.ROTATE_180)
