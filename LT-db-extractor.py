@@ -122,7 +122,7 @@ def main():
         # Read LemnaTec database time format for renaming output PNG files
         lt_time = snapshot['time_stamp'] #this is already in a date format. don't need to parse
         lt_time_neat = datetime.datetime.strftime(lt_time, '%Y%m%dT%H%M%S')
-        image_name = '_'.join([snapshot['id_tag'], snapshot['measurement_label'],
+        image_name = '-'.join([snapshot['id_tag'], snapshot['measurement_label'],
                                lt_time_neat, snapshot['camera_label'], str(snapshot['frame'])])
 
         print('\n'+image_name)
