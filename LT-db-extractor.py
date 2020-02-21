@@ -246,6 +246,15 @@ def main():
                             else:
                                 print("Warning: File {0} containing image {1} seems corrupted.".format(local_file,
                                                                                                        image_name))
+                        elif snapshot['dataformat'] == 100000:
+                            # data format code for last frame which corresponds to the pim file
+                            pimdir = os.path.join(snapshot_dir,'pim')
+                            os.makedirs(pimdir, exist_ok=True)
+                            # Pass "wb" to write a new file, or "ab" to append
+                            with open(os.path.join(pimdir, image_name + ".pim"), "wb") as binary_file:
+                                # Write text or bytes to the file
+                                binary_file.write(img_str)
+                        
                         if raw_rescale is not None:
                             raw_img = raw_rescale.reshape((db['psII_height'], db['psII_width']))
                             rotate_flip_type = snapshot['rotate_flip_type']
