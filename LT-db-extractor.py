@@ -100,7 +100,7 @@ def main():
         # CAST(frame as CHAR) LIKE   -- use this to match as a character
     else: 
         frameid = str(args.frameid)  #-- tuple(args.frameid) to match as a number
-        # frame in   -- use this to match as a number
+        # frame IN   -- use this to match as a number
     
     # Create data dictionary for psqgl
     data = {'exp':exp, 'date_start':date_start, 'date_end':date_end, 'camera_label':camera_label, 'frameid':frameid}
