@@ -19,6 +19,8 @@ def options():
     parser.add_argument("-c", "--config", help="JSON config file.", required=True)
     parser.add_argument("-e", "--exper", help="Experiment number/name (measurement label)", required=True)
     parser.add_argument("-l", "--camera", help="Camera label. VIS or PSII or NIR", required=False)
+    parser.add_argument("-i", "--frameid", help="List of frameid to download",
+                        required=False, nargs='+')
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
     parser.add_argument("-z", "--date2", help="Date for end of data series (YYYY-mm-dd) (exclusive).", required=False)
@@ -92,8 +94,16 @@ def main():
     else:
         camera_label = args.camera+'%' #add wildcard to match number
     
+    # Load frameid
+    if args.frameid is None:
+        frameid = '%' #'%'
+        # CAST(frame as CHAR) LIKE   -- use this to match as a character
+    else: 
+        frameid = str(args.frameid)  #-- tuple(args.frameid) to match as a number
+        # frame in   -- use this to match as a number
+    
     # Create data dictionary for psqgl
-    data = {'exp':exp, 'date_start':date_start, 'date_end':date_end, 'camera_label':camera_label}
+    data = {'exp':exp, 'date_start':date_start, 'date_end':date_end, 'camera_label':camera_label, 'frameid':frameid}
 
     # Get all image metadata
     cur.execute("SELECT * FROM snapshot "
@@ -103,7 +113,8 @@ def main():
                 "WHERE measurement_label = %(exp)s AND "
                 "time_stamp >= %(date_start)s AND "
                 "time_stamp <= %(date_end)s AND "
-                "camera_label ILIKE %(camera_label)s", 
+                "camera_label ILIKE %(camera_label)s AND "
+                "CAST(frame as CHAR) LIKE %(frameid)s ",
                 data)
     
     snapshots = cur.fetchall()
