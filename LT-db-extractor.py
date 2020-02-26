@@ -19,7 +19,7 @@ def options():
     parser.add_argument("-c", "--config", help="JSON config file.", required=True)
     parser.add_argument("-e", "--exper", help="Experiment number/name (measurement label)", required=True)
     parser.add_argument("-l", "--camera", help="Camera label. VIS or PSII or NIR", required=False)
-    parser.add_argument("-i", "--frameid", help="List of frameid to download",
+    parser.add_argument("-i", "--frameid", help="image frame # to download. Argument accepts multiple frames delimited by space.",
                         required=False, nargs='+')
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
@@ -148,8 +148,9 @@ def main():
 
         # Create the local directory
         snapshot_dir = args.outdir
+        pimdir = os.path.join(snapshot_dir, 'pim')
         # don't redownload existing images
-        if os.path.exists(os.path.join(snapshot_dir, image_name+'.png')) or os.path.exists(os.path.join(snapshot_dir,'pim',image_name+'.pim')):
+        if os.path.exists(os.path.join(snapshot_dir, image_name+'.png')) or os.path.exists(os.path.join(pimdir,image_name+'.pim')):
             print('...skipping, image file already exists!')
             continue
         else:
@@ -259,7 +260,6 @@ def main():
                                                                                                        image_name))
                         elif snapshot['dataformat'] == 100000:
                             # data format code for last frame which corresponds to the pim file
-                            pimdir = os.path.join(snapshot_dir,'pim')
                             os.makedirs(pimdir, exist_ok=True)
                             # Pass "wb" to write a new file, or "ab" to append
                             with open(os.path.join(pimdir, image_name + ".pim"), "wb") as binary_file:
