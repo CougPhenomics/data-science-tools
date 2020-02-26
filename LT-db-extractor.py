@@ -149,8 +149,8 @@ def main():
         # Create the local directory
         snapshot_dir = args.outdir
         # don't redownload existing images
-        if os.path.exists(os.path.join(snapshot_dir, image_name+'.png')):
-            print('png already exists!')
+        if os.path.exists(os.path.join(snapshot_dir, image_name+'.png')) or os.path.exists(os.path.join(snapshot_dir,'pim',image_name+'.pim')):
+            print('...skipping, image file already exists!')
             continue
         else:
             os.makedirs(snapshot_dir, exist_ok=True)
