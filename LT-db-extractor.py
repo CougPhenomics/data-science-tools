@@ -96,10 +96,10 @@ def main():
     
     # Load frameid
     if args.frameid is None:
-        frameid = '%' #'%'
-        # CAST(frame as CHAR) LIKE   -- use this to match as a character
+        frameid = tuple(range(1,100))# HOpefully this is enough to get all of them ?!
+        # CAST(frame as CHAR) LIKE '%' -- use this to match as a character
     else: 
-        frameid = str(args.frameid)  #-- tuple(args.frameid) to match as a number
+        frameid = tuple(args.frameid)  #-- str(args.frameid) to match a single value as a character with LIKE
         # frame IN   -- use this to match as a number
     
     # Create data dictionary for psqgl
@@ -114,7 +114,7 @@ def main():
                 "time_stamp >= %(date_start)s AND "
                 "time_stamp <= %(date_end)s AND "
                 "camera_label ILIKE %(camera_label)s AND "
-                "CAST(frame as CHAR) LIKE %(frameid)s ",
+                "frame IN %(frameid)s ",
                 data)
     
     snapshots = cur.fetchall()
