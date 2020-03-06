@@ -87,6 +87,7 @@ def main():
         print("Preparing to download all snapshots from measurement label {0}...".format(exp))
         date_start = '1900-01-01'
         date_end = now.strftime('%Y-%m-%d')
+        date_end = datetime.datetime.strptime(date_end,'%Y-%m-%d') + datetime.timedelta(days=1)
     
     # Load Camera label   
     if args.camera is None:
