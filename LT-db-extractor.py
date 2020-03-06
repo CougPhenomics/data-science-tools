@@ -88,7 +88,7 @@ def main():
         date_start = '1900-01-01'
         date_end = now.strftime('%Y-%m-%d')
         date_end = datetime.datetime.strptime(date_end,'%Y-%m-%d') + datetime.timedelta(days=1)
-    
+        
     # Load Camera label   
     if args.camera is None:
         camera_label = '%' #if no camera label is passed then match any camera
@@ -97,8 +97,8 @@ def main():
     
     # Load frameid
     if args.frameid is None:
-        frameid = tuple(range(1,100))# HOpefully this is enough to get all of them ?!
-        # CAST(frame as CHAR) LIKE '%' -- use this to match as a character
+        frameid = tuple(range(0,100))# HOpefully this is enough to get all of them ?!
+        # CAST(frame as CHAR) LIKE '%' -- could use this to match as a character
     else: 
         frameid = tuple(args.frameid)  #-- str(args.frameid) to match a single value as a character with LIKE
         # frame IN   -- use this to match as a number
@@ -113,7 +113,7 @@ def main():
                 "INNER JOIN image_file_table ON image_file_table.id = tile.raw_image_oid "
                 "WHERE measurement_label = %(exp)s AND "
                 "time_stamp >= %(date_start)s AND "
-                "time_stamp <= %(date_end)s AND "
+                "time_stamp < %(date_end)s AND "
                 "camera_label ILIKE %(camera_label)s AND "
                 "frame IN %(frameid)s ",
                 data)
