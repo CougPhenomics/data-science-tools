@@ -19,7 +19,7 @@ def options():
     parser.add_argument("-c", "--config", help="JSON config file.", required=True)
     parser.add_argument("-e", "--exper", help="Experiment number/name (measurement label)", required=True)
     parser.add_argument("-l", "--camera", help="Camera label. VIS or PSII or NIR", required=False)
-    parser.add_argument("-i", "--frameid", help="image frame # to download. Argument accepts multiple frames delimited by space.",
+    parser.add_argument("-i", "--frameid", help="image frame # to download. Argument accepts multiple frames delimited by space. Frames start at 0!",
                         required=False, nargs='+')
     parser.add_argument("-o", "--outdir", help="Output directory for results.", required=True)
     parser.add_argument("-a", "--date1", help="Date for start of data series (YYYY-mm-dd).", required=False)
